@@ -1,11 +1,20 @@
 import React from 'react';
 
-const Header = (props) => {
-  console.log(props);
+const Header = ({countClicks, countDone, timeRemaining}) => {
+
   return (
+
+    <React.Fragment>
     <span>
-      {props.countTry}
+      {`click counts: ${countClicks}`}
     </span>
+    <span>
+      {`done counts: ${countDone}`}
+    </span>
+    <span>
+      {`time remain: ${timeRemaining}`}
+    </span>
+    </React.Fragment>
   )
 }
 

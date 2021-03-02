@@ -1,10 +1,6 @@
 import React from 'react';
 
-// import './card-item.css';
-
-const CardItem = ({ image
-  // important, done, label, onToggleImportant, onToggleDone, onDelete
-    }) => {
+const CardItem = ({ image, id }) => {
   const back = 'back.png';
 
   return (
@@ -16,7 +12,7 @@ const CardItem = ({ image
           backgroundRepeat: 'no-repeat',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-        }}></div>
+        }}>{id}</div>
       <div
         className="card-back"
         style={{
