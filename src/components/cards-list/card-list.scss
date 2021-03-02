@@ -1,0 +1,77 @@
+.cards {
+  display: flex;
+  // justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 20px;
+}
+
+.card {
+  position: relative;
+  width: 180px;
+  height: 220px;
+  // height: 300px;
+  margin: 10px auto;
+  display: flex;
+  flex-direction: column;
+
+  border-radius: 20px;
+  transform-style: preserve-3d;
+  perspective: 600px;
+  transition: all 0.7s;
+  cursor: pointer;
+
+  &-front,
+  &-back {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    // top: 0;
+    // left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    backface-visibility: hidden;
+    border: 1px solid grey;
+  }
+
+  &_flipped{
+    display: none;
+    // height: 0%;
+  }
+  &-front {
+    &:hover {
+      box-shadow: 5px 5px 10px grey;
+      transform: scale(1.01);
+      transition: transform 0.15s ease-in-out;
+    }
+  }
+  &-back {
+    transform: rotateY(180deg);
+  }
+  .done {
+    transform: rotateY(180deg);
+    pointer-events: none;
+    opacity: 0.1;
+  }
+}
+.card.flipped {
+  transform: rotateY(180deg);
+  pointer-events: none;
+//   .done{
+//     opacity: 0.1;
+//   }
+}
+.card.checked {
+  // transform: rotateY(180deg);
+  pointer-events: none;
+  opacity: 0.3;
+}
+.card.done {
+  transform: rotateY(180deg);
+  pointer-events: none;
+  .card-back{
+    opacity: 0.3;
+  }
+}
