@@ -5,6 +5,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: aliceblue;
 }
 
 code {
@@ -12,6 +13,14 @@ code {
     monospace;
 }
 
-#root {
-  background-image: url(./bg1.jpg);
+header{
+  display: flex;
+  justify-content: space-between;
 }
+
+// .App {
+//   min-height: 100vh;
+//   display: flex;
+//   align-items: center;
+//   flex-direction: column;
+// }

@@ -7,9 +7,11 @@ import Cards from '../cards/cards';
 
 export default class Game extends Component {
 
-  boardSize= [4, 8, 10];
-  difficulties= [160, 80, 40];
+  boardSizeArray= [4, 8, 10];
+  difficulties= [40, 80, 40];
   bgImage = ['./bg1.jpg', './bg2.jpg', './bg3.jpg'];
+  // boardSize = boardSize[2];
+  // getCardsData = (number) => Cards(number);
   getCardsData = () => Cards();
 
   componentDidUpdate() {
@@ -29,17 +31,18 @@ export default class Game extends Component {
 
   state = {
     // itemList: Cards(),
-    boardSize: this.boardSize[0],
+    boardSize: 0,
     itemList: this.getCardsData(),
     countClicks: 0,
     countDone: 0,
-    timeRemaining: this.difficulties[0],
+    timeRemaining: 0,
     gameStarted: false,
     difficulty: 0,
-    background: this.bgImage[0],
+    background: 0,
   };
   checkedIndex = [];
   doneIndex = [];
+
   IntervalId = null;
 
   initialGame = ({
@@ -86,6 +89,8 @@ export default class Game extends Component {
     }));
   }
 
+
+
   getFromLocalStorage = (state, indexes) => {
     const stateObj = JSON.parse(state);
     const indexesObj = JSON.parse(indexes);
@@ -105,6 +110,7 @@ export default class Game extends Component {
   startGame = (isStart = true) => {
     clearInterval(this.IntervalId);
     this.setState((state) => {
+      // const cardData = this.getCardsData(this.boardSize);
       const cardData = this.getCardsData();
       const time = this.difficulties[this.state.difficulty];
       return {gameStarted: true,
@@ -120,14 +126,21 @@ export default class Game extends Component {
   endGame = () => {
     clearInterval(this.IntervalId);
     this.setState(() => {
-      return {gameStarted: false};
+      return {
+        gameStarted: false,
+        countClicks: 0,
+        countDone: 0,
+      };
     })
+    alert('You lose')
   }
 
   setTimer = () => {
 
     this.setState((state) => {
-      const time = state.timeRemaining -1;
+
+      let time = state.timeRemaining -1;
+      if (time < 0) time = 0;
       return {timeRemaining: time}
     },()=>{
       if (this.state.timeRemaining === 0) {
@@ -146,7 +159,7 @@ export default class Game extends Component {
       gameStarted
     } = this.state;
     if (!gameStarted) return;
-    console.log('assd ok')
+    // console.log('assd ok')
     if (this.checkedIndex.length >1 ) return;
     this.flipCard(index);
     this.addCheckCards(index);
@@ -160,6 +173,7 @@ export default class Game extends Component {
       const winGame = new Audio('./success.wav');
       winGame.play();
       this.componentWillUnmount();
+      alert('You win');
       setTimeout(() => {
         window.location.reload(false);
       }, 5000);
@@ -286,6 +300,54 @@ export default class Game extends Component {
     flipAudio.play();
   }
 
+  changeBoardSize = () => {
+    this.setState(({boardSize}) => {
+        let newItem = boardSize ++;
+        if (newItem === 3) {
+          let newItem = 0;
+        }
+      return {boardSize: newItem};
+    })
+  }
+
+  changeBgImage = () => {
+    this.setState(({background}) => {
+      // console.log('sa',background);
+      let newItem = background ++;
+
+      // console.log('aft',background);
+      // console.log('afta',background);
+      if (newItem === 3) {
+        let newItem = 0;
+      }
+    return {background: newItem};
+  }, ()=>{console.log(this.state.background)})
+  }
+
+  changeDifficulties = () => {
+    this.setState(({difficulty}) => {
+      let newItem = difficulty ++;
+      if (newItem === 3) {
+        let newItem = 0;
+      }
+    return {difficulty: newItem};
+  })
+  }
+
+  returnBgImage = () => {
+    return this.bgImage[this.state.background]
+  }
+
+  // autoClick = () => {
+  //   this.state.itemList.
+  // }
+  AutoPlay = () => {
+    this.startGame();
+    // setInterval(autoClick, 1100);
+  }
+
+
+
   render() {
     const {
       itemList,
@@ -295,7 +357,7 @@ export default class Game extends Component {
       gameStarted,
       background
     } = this.state;
-    console.log(gameStarted);
+    // console.log(background);
 
     return(
       // <React.Fragment>
@@ -303,10 +365,11 @@ export default class Game extends Component {
         className='app'
         style= {{
           // backgroundImage:`url(${this.backgroundImage})`,
-          backgroundImage:`url(./${background})`,
+          backgroundImage:`url(./${this.returnBgImage()})`,
             backgroundRepeat: 'no-repeat',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
+            minHeight: '100vh'
         }}
       >
         <Header
@@ -314,8 +377,20 @@ export default class Game extends Component {
           countDone={countDone}
           timeRemaining={timeRemaining}
 
-          buttonLabel={'Start Game'}
-          onClick={this.startGame}
+          onClickStartGame={this.startGame}
+          buttonLabelStartGame={'Start Game'}
+
+          onClickBoardSize={this.changeBoardSize}
+          buttonLabelBoardSize={'Change Board Size'}
+
+          onClickDifficulties={this.changeDifficulties}
+          buttonLabelDifficulties={'change difficulty'}
+
+          onClickBgImage={this.changeBgImage}
+          buttonLabelBgImage={'change BgImage'}
+
+          onClickAutoPlay={this.AutoPlay}
+          buttonLabelAutoPlay={'AutoPlay'}
         />
           {/* //TODO Higher-Order Component, HOC */}
           {/* <Button
@@ -325,7 +400,6 @@ export default class Game extends Component {
         <CardsList
           itemList={itemList}
           onClick={(i)=> {
-            // if (this.state.gameStarted)
             this.onCardClick(i)}}
         />
         </div>

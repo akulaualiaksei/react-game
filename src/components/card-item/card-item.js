@@ -12,7 +12,7 @@ const CardItem = ({ image, id }) => {
           backgroundRepeat: 'no-repeat',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-        }}>{id}</div>
+        }}></div>
       <div
         className="card-back"
         style={{

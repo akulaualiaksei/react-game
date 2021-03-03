@@ -7,13 +7,22 @@ const Header = (
     countClicks,
     countDone,
     timeRemaining,
-    onClick,
-    buttonLabel,
+    onClickStartGame,
+    buttonLabelStartGame,
+    onClickBoardSize,
+    buttonLabelBoardSize,
+    onClickDifficulties,
+    buttonLabelDifficulties,
+    onClickBgImage,
+    buttonLabelBgImage,
+    onClickAutoPlay,
+    buttonLabelAutoPlay,
+
   }) => {
 
   return (
 
-    <React.Fragment>
+    <header>
     <span>
       {`click counts: ${countClicks}`}
     </span>
@@ -24,14 +33,26 @@ const Header = (
       {`time remain: ${timeRemaining}`}
     </span>
     <Button
-      handleClick={onClick}
-      label= {buttonLabel}
+      handleClick={onClickStartGame}
+      label= {buttonLabelStartGame}
     />
-    {/* <Button
-      handleClick={onClick}
-      label= {buttonLabel}
-    /> */}
-    </React.Fragment>
+    <Button
+      handleClick={onClickBoardSize}
+      label= {buttonLabelBoardSize}
+    />
+    <Button
+      handleClick={onClickDifficulties}
+      label= {buttonLabelDifficulties}
+    />
+    <Button
+      handleClick={onClickBgImage}
+      label= {buttonLabelBgImage}
+    />
+    <Button
+      handleClick={onClickAutoPlay}
+      label= {buttonLabelAutoPlay}
+    />
+    </header>
   )
 }
 
