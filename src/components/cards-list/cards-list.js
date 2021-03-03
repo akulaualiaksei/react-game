@@ -41,12 +41,12 @@ export default class CardsList extends Component {
   }
 
   render() {
-    console.log(this.props);
+    // console.log(this.props);
     const {itemList} = this.props;
-    console.log(itemList);
+    // console.log(itemList);
 
     if (!itemList) {
-      console.log(itemList);
+      // console.log(itemList);
       return <div>error</div>
     }
 

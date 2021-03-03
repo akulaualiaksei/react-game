@@ -1,6 +1,15 @@
 import React from 'react';
 
-const Header = ({countClicks, countDone, timeRemaining}) => {
+import Button from '../button/button';
+
+const Header = (
+  {
+    countClicks,
+    countDone,
+    timeRemaining,
+    onClick,
+    buttonLabel,
+  }) => {
 
   return (
 
@@ -14,6 +23,14 @@ const Header = ({countClicks, countDone, timeRemaining}) => {
     <span>
       {`time remain: ${timeRemaining}`}
     </span>
+    <Button
+      handleClick={onClick}
+      label= {buttonLabel}
+    />
+    {/* <Button
+      handleClick={onClick}
+      label= {buttonLabel}
+    /> */}
     </React.Fragment>
   )
 }

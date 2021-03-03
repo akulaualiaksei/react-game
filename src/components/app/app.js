@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import './app.css';
 
-import Cards from '../cards/cards';
+// import Cards from '../cards/cards';
 import Game from '../game/game';
 
 export default class App extends Component {
 
-  cardsData = Cards();
+  // cardsData = Cards();
   state = {
     // cardsData: Cards(),
     // countTry: 0,
@@ -15,7 +15,7 @@ export default class App extends Component {
   render() {
     return(
       <Game
-        getData={this.cardsData}
+        // getData={this.cardsData}
       />
     )
   }

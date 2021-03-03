@@ -2,59 +2,161 @@ import React, {Component} from 'react';
 
 import CardsList from '../cards-list/cards-list';
 import Header from '../header/header';
+import Cards from '../cards/cards';
 // import PlayAudio from '../audio/audio';
 
 export default class Game extends Component {
 
+  boardSize= [4, 8, 10];
+  difficulties= [160, 80, 40];
+  bgImage = ['./bg1.jpg', './bg2.jpg', './bg3.jpg'];
+  getCardsData = () => Cards();
+
+  componentDidUpdate() {
+    this.writeLocalStorage();
+    if(this.state.gameStarted && this.IntervalId === null) {
+      this.IntervalId = setInterval(this.setTimer, 1000);
+    }
+  }
+
+  componentDidMount() {
+    const localStorageState = localStorage.getItem('state');
+    const localStorageIndexes = localStorage.getItem('indexes');
+    if (localStorageState !== null){
+      this.getFromLocalStorage(localStorageState, localStorageIndexes);
+    }
+  }
+
   state = {
-    itemList: this.props.getData,
+    // itemList: Cards(),
+    boardSize: this.boardSize[0],
+    itemList: this.getCardsData(),
     countClicks: 0,
     countDone: 0,
-    time: 0,
-    timeRemaining: 120,
+    timeRemaining: this.difficulties[0],
+    gameStarted: false,
+    difficulty: 0,
+    background: this.bgImage[0],
   };
   checkedIndex = [];
   doneIndex = [];
   IntervalId = null;
 
-  componentDidMount() {
+  initialGame = ({
+    boardSize,
+    itemList,
+    countClicks,
+    countDone,
+    timeRemaining,
+    gameStarted,
+    difficulty,
+    background,
+  }, indexesObj ) => {
+    // TODO if data from ls
+    if (indexesObj !== null) {
+      this.checkedIndex = indexesObj.checkedIndex;
+      this.doneIndex = indexesObj.doneIndex;
+    }
+    this.setState((state) => {
+      return{
+        boardSize,
+        itemList,
+        countClicks,
+        countDone,
+        timeRemaining,
+        gameStarted,
+        difficulty,
+        background,
+      }
+    }, () => {console.log(this.state.gameStarted)})
+
+
+
+  }
+
+  writeLocalStorage = () => {
+    const currState = this.state;
+
+    if (typeof currState === 'object' && currState !== null) {
+    localStorage.setItem('state', JSON.stringify(currState));
+  }
+    localStorage.setItem('indexes', JSON.stringify({
+      checkedIndex: this.checkedIndex,
+      doneIndex: this.doneIndex,
+    }));
+  }
+
+  getFromLocalStorage = (state, indexes) => {
+    const stateObj = JSON.parse(state);
+    const indexesObj = JSON.parse(indexes);
+    this.initialGame(stateObj, indexesObj);
+  }
+
+  initialInterval = () => {
     this.IntervalId = setInterval(this.setTimer, 1000);
+  }
+
+  setGameStarted = (bool) => {
+    this.setState(({gameStarted}) => {
+      return{gameStarted: bool}
+    })
+  }
+
+  startGame = (isStart = true) => {
+    clearInterval(this.IntervalId);
+    this.setState((state) => {
+      const cardData = this.getCardsData();
+      const time = this.difficulties[this.state.difficulty];
+      return {gameStarted: true,
+        itemList: cardData,
+        countClicks: 0,
+        countDone: 0,
+        timeRemaining: time
+      }
+    });
+    this.IntervalId = this.initialInterval();
+  }
+
+  endGame = () => {
+    clearInterval(this.IntervalId);
+    this.setState(() => {
+      return {gameStarted: false};
+    })
   }
 
   setTimer = () => {
 
     this.setState((state) => {
       const time = state.timeRemaining -1;
-      console.log(time);
       return {timeRemaining: time}
     },()=>{
       if (this.state.timeRemaining === 0) {
-      clearInterval(this.IntervalId);
+        this.endGame();
     }})
   }
 
   componentWillUnmount() {
     clearInterval(this.IntervalId);
+    this.IntervalId = null;
   }
 
   onCardClick = (index) => {
     const {
-      itemList
+      itemList,
+      gameStarted
     } = this.state;
-    console.log(itemList[index]);
+    if (!gameStarted) return;
+    console.log('assd ok')
     if (this.checkedIndex.length >1 ) return;
     this.flipCard(index);
     this.addCheckCards(index);
     if (this.doneIndex.length === itemList.length) {
-      console.log('win');
     }
-    console.log('doneIndex', this.doneIndex, 'itemList', itemList)
   }
 
   isWin = () => {
 
     if (this.doneIndex.length === this.state.itemList.length) {
-      console.log('win');
       const winGame = new Audio('./success.wav');
       winGame.play();
       this.componentWillUnmount();
@@ -69,8 +171,6 @@ export default class Game extends Component {
     const {itemList, countDone} = this.state;
 
     this.checkedIndex.push(index);
-
-    console.log(this.checkedIndex);
 
     if (this.checkedIndex.length > 1) {
 
@@ -175,6 +275,7 @@ export default class Game extends Component {
 
   flipCard = (index) => {
     console.log(this.state.itemList[index]);
+
     this.setState((state) => {
       const items = this.toggleProperty(state.itemList, index, 'flipped');
       const countClicks = state.countClicks + 1;
@@ -184,23 +285,51 @@ export default class Game extends Component {
     const flipAudio = new Audio('./flip.wav');
     flipAudio.play();
   }
+
   render() {
-    const {itemList, countClicks, countDone, timeRemaining} = this.state;
-    console.log('frm game', itemList);
-    console.log('frm game', this.state);
+    const {
+      itemList,
+      countClicks,
+      countDone,
+      timeRemaining,
+      gameStarted,
+      background
+    } = this.state;
+    console.log(gameStarted);
 
     return(
-      <React.Fragment>
+      // <React.Fragment>
+      <div
+        className='app'
+        style= {{
+          // backgroundImage:`url(${this.backgroundImage})`,
+          backgroundImage:`url(./${background})`,
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+        }}
+      >
         <Header
           countClicks={countClicks}
           countDone={countDone}
           timeRemaining={timeRemaining}
+
+          buttonLabel={'Start Game'}
+          onClick={this.startGame}
         />
+          {/* //TODO Higher-Order Component, HOC */}
+          {/* <Button
+            handleClick={this.eventas}
+            label={label}
+          /> */}
         <CardsList
           itemList={itemList}
-          onClick={(i)=> this.onCardClick(i)}
+          onClick={(i)=> {
+            // if (this.state.gameStarted)
+            this.onCardClick(i)}}
         />
-      </React.Fragment>
+        </div>
+      // </React.Fragment>
     );
   }
 
