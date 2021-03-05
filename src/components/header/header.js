@@ -17,6 +17,12 @@ const Header = (
     buttonLabelBgImage,
     onClickAutoPlay,
     buttonLabelAutoPlay,
+    onClickAudioToggle,
+    buttonLabelAudioToggle,
+    onClickSoundUp,
+    buttonLabelSoundUp,
+    onClickSoundDown,
+    buttonLabelSoundDown,
 
   }) => {
 
@@ -51,6 +57,18 @@ const Header = (
     <Button
       handleClick={onClickAutoPlay}
       label= {buttonLabelAutoPlay}
+    />
+    <Button
+      handleClick={onClickAudioToggle}
+      label= {buttonLabelAudioToggle}
+    />
+    <Button
+      handleClick={onClickSoundUp}
+      label= {buttonLabelSoundUp}
+    />
+    <Button
+      handleClick={onClickSoundDown}
+      label= {buttonLabelSoundDown}
     />
     </header>
   )

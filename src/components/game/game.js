@@ -3,47 +3,59 @@ import React, {Component} from 'react';
 import CardsList from '../cards-list/cards-list';
 import Header from '../header/header';
 import Cards from '../cards/cards';
-// import PlayAudio from '../audio/audio';
+import Footer from '../footer/footer';
+import PlayAudio from '../audio/audio';
 
 export default class Game extends Component {
 
-  boardSizeArray= [4, 8, 10];
-  difficulties= [40, 80, 40];
-  bgImage = ['./bg1.jpg', './bg2.jpg', './bg3.jpg'];
+  getCardsData = (num) => Cards(num);
+  // constructor(props) {
+  //   super(props);
+    // this.state = {
+    state = {
+      boardSize: 0,
+      itemList: this.getCardsData(),
+      countClicks: 0,
+      countDone: 0,
+      timeRemaining: 0,
+      gameStarted: false,
+      difficulty: 0,
+      background: 0,
+      isAudioOn: true,
+      audioVolume: 1,
+    };
+    playAudio = new PlayAudio(
+      this.state.isAudioOn,
+      this.state.audioVolume,
+    );
+  // }
+
+
+  boardSizeArray= [10, 5];
+  difficulties= [80, 40];
+  bgImage = ['./bg1.jpg', './bg2.jpg'];
+  IntervalId = null;
   // boardSize = boardSize[2];
   // getCardsData = (number) => Cards(number);
-  getCardsData = () => Cards();
 
   componentDidUpdate() {
     this.writeLocalStorage();
-    if(this.state.gameStarted && this.IntervalId === null) {
-      this.IntervalId = setInterval(this.setTimer, 1000);
-    }
   }
 
   componentDidMount() {
     const localStorageState = localStorage.getItem('state');
     const localStorageIndexes = localStorage.getItem('indexes');
+    // const bgAudio = new Audio('./bg.mp3');
+    // bgAudio.play();
     if (localStorageState !== null){
       this.getFromLocalStorage(localStorageState, localStorageIndexes);
     }
+    // this.playAudio.startBg();
+    this.hotKeys();
   }
 
-  state = {
-    // itemList: Cards(),
-    boardSize: 0,
-    itemList: this.getCardsData(),
-    countClicks: 0,
-    countDone: 0,
-    timeRemaining: 0,
-    gameStarted: false,
-    difficulty: 0,
-    background: 0,
-  };
   checkedIndex = [];
   doneIndex = [];
-
-  IntervalId = null;
 
   initialGame = ({
     boardSize,
@@ -60,18 +72,21 @@ export default class Game extends Component {
       this.checkedIndex = indexesObj.checkedIndex;
       this.doneIndex = indexesObj.doneIndex;
     }
-    this.setState((state) => {
-      return{
-        boardSize,
-        itemList,
-        countClicks,
-        countDone,
-        timeRemaining,
-        gameStarted,
-        difficulty,
-        background,
-      }
-    }, () => {console.log(this.state.gameStarted)})
+    if (gameStarted) {
+      this.setState((state) => {
+        return{
+          boardSize,
+          itemList,
+          countClicks,
+          countDone,
+          timeRemaining,
+          gameStarted,
+          difficulty,
+          background,
+        }
+      }, () => {console.log(this.state.gameStarted)})
+      this.initialInterval();
+    }
 
 
 
@@ -88,6 +103,13 @@ export default class Game extends Component {
       doneIndex: this.doneIndex,
     }));
   }
+
+  removeLocalStorage = () => {
+    localStorage.removeItem('indexes');
+    localStorage.removeItem('state');
+    console.log('remove ls')
+  }
+
 
 
 
@@ -111,8 +133,11 @@ export default class Game extends Component {
     clearInterval(this.IntervalId);
     this.setState((state) => {
       // const cardData = this.getCardsData(this.boardSize);
-      const cardData = this.getCardsData();
+      const cardData = this.getCardsData(this.boardSizeArray[this.state.boardSize]);
       const time = this.difficulties[this.state.difficulty];
+      console.log('time',time);
+      console.log('time d',this.state.difficulty);
+      console.log('time item',this.difficulties[this.state.difficulty]);
       return {gameStarted: true,
         itemList: cardData,
         countClicks: 0,
@@ -120,22 +145,42 @@ export default class Game extends Component {
         timeRemaining: time
       }
     });
-    this.IntervalId = this.initialInterval();
+    this.initialInterval();
+    this.playAudio.startBg();
   }
 
-  endGame = () => {
+  resetGame = () => {
     clearInterval(this.IntervalId);
+    this.IntervalId = null;
     this.setState(() => {
       return {
         gameStarted: false,
         countClicks: 0,
         countDone: 0,
+        timeRemaining: 0,
       };
     })
+
+    console.log('remove from reset')
+    this.removeLocalStorage();
+    this.doneIndex = [];
+    this.checkedIndex = [];
+    this.playAudio.stopBg();
+  }
+
+  endGame = () => {
+    // const loseGame = new Audio('./lose.wav');
+    // loseGame.play();
+    this.playAudio.lose();
+    this.resetGame();
+    this.playAudio.stopBg();
+    // setTimeout()
     alert('You lose')
+
   }
 
   setTimer = () => {
+    // console.log(this.IntervalId);
 
     this.setState((state) => {
 
@@ -164,111 +209,124 @@ export default class Game extends Component {
     this.flipCard(index);
     this.addCheckCards(index);
     if (this.doneIndex.length === itemList.length) {
+      this.isWin();
     }
   }
 
   isWin = () => {
 
     if (this.doneIndex.length === this.state.itemList.length) {
-      const winGame = new Audio('./success.wav');
-      winGame.play();
-      this.componentWillUnmount();
-      alert('You win');
-      setTimeout(() => {
-        window.location.reload(false);
-      }, 5000);
+      // const winGame = new Audio('./success.wav');
+      // winGame.play();
+      this.playAudio.win();
+      // this.componentWillUnmount();
+      console.log('from win game', this.IntervalId)
+      clearInterval(this.IntervalId);
+      this.setGameStarted(false);
+      // setTimeout(() => {
+      //   window.location.reload(false);
+      // }, 5000);
+      console.log('remove from win')
+      this.removeLocalStorage();
+      this.doneIndex = [];
+      this.checkedIndex = [];
+      this.playAudio.stopBg();
+      alert('you win');
 
     }
   }
 
-  addCheckCards = (index) => {
+  checkCards = () => {
     const {itemList, countDone} = this.state;
+    const firstChecked = itemList[this.checkedIndex[0]];
+    const secondChecked = itemList[this.checkedIndex[1]];
+    if (firstChecked === undefined || secondChecked === undefined) return;
+    if (firstChecked.id === secondChecked.id) {
+      // const correctAudio = new Audio('./correct.wav');
+      // correctAudio.play();
+      this.playAudio.correct();
+      this.checkedIndex = [];
+      this.doneIndex = [...this.doneIndex, firstChecked.key, secondChecked.key];
+      // this.isWin();
+
+      this.setState((state) => {
+        const firstIndex = state.itemList.findIndex((item) => item.key === firstChecked.key);
+        const secondIndex = state.itemList.findIndex((item) => item.key === secondChecked.key);
+
+        const firstEdit = { ...firstChecked,
+          checked: false,
+          done: true,
+          flipped: true,
+        }
+
+        let newItemList = [
+          ...state.itemList.slice(0, firstIndex),
+          firstEdit,
+          ...state.itemList.slice(firstIndex+1)
+        ]
+        const secondEdit = { ...secondChecked,
+          checked: false,
+          done: true,
+          flipped: true,
+        }
+
+        newItemList = [
+          ...newItemList.slice(0, secondIndex),
+          secondEdit,
+          ...newItemList.slice(secondIndex+1)
+        ]
+
+        return{
+          itemList: newItemList,
+          countDone: countDone + 1,
+        };
+
+      })
+    } else {
+      // const wrongAudio = new Audio('./wrong.mp3');
+      // wrongAudio.play();
+      this.playAudio.wrong();
+      this.setState((state) => {
+
+        const firstIndex = state.itemList.findIndex((item) => item.key === firstChecked.key);
+        const secondIndex = state.itemList.findIndex((item) => item.key === secondChecked.key);
+
+        const firstEdit = { ...firstChecked,
+          checked: false,
+          done: false,
+          flipped: false,
+        }
+
+        let newItemList = [
+          ...state.itemList.slice(0, firstIndex),
+          firstEdit,
+          ...state.itemList.slice(firstIndex+1)
+        ]
+        const secondEdit = { ...secondChecked,
+          checked: false,
+          done: false,
+          flipped: false,
+        }
+
+        newItemList = [
+          ...newItemList.slice(0, secondIndex),
+          secondEdit,
+          ...newItemList.slice(secondIndex+1)
+        ]
+
+        return{itemList: newItemList};
+      })
+      this.checkedIndex =[];
+    }
+    this.isWin();
+  }
+
+  addCheckCards = (index) => {
 
     this.checkedIndex.push(index);
 
     if (this.checkedIndex.length > 1) {
-
-      const checkCards = () => {
-        const firstChecked = itemList[this.checkedIndex[0]];
-        const secondChecked = itemList[this.checkedIndex[1]];
-        if (firstChecked.id === secondChecked.id) {
-          const correctAudio = new Audio('./correct.wav');
-          correctAudio.play();
-          this.checkedIndex = [];
-          this.doneIndex = [...this.doneIndex, firstChecked.key, secondChecked.key];
-          this.isWin();
-
-          this.setState((state) => {
-            const firstIndex = state.itemList.findIndex((item) => item.key === firstChecked.key);
-            const secondIndex = state.itemList.findIndex((item) => item.key === secondChecked.key);
-
-            const firstEdit = { ...firstChecked,
-              checked: false,
-              done: true,
-              flipped: true,
-            }
-
-            let newItemList = [
-              ...state.itemList.slice(0, firstIndex),
-              firstEdit,
-              ...state.itemList.slice(firstIndex+1)
-            ]
-            const secondEdit = { ...secondChecked,
-              checked: false,
-              done: true,
-              flipped: true,
-            }
-
-            newItemList = [
-              ...newItemList.slice(0, secondIndex),
-              secondEdit,
-              ...newItemList.slice(secondIndex+1)
-            ]
-
-            return{
-              itemList: newItemList,
-              countDone: countDone + 1,
-            };
-
-          })
-        } else {
-          const wrongAudio = new Audio('./wrong.mp3');
-          wrongAudio.play();
-          this.setState((state) => {
-
-            const firstIndex = state.itemList.findIndex((item) => item.key === firstChecked.key);
-            const secondIndex = state.itemList.findIndex((item) => item.key === secondChecked.key);
-
-            const firstEdit = { ...firstChecked,
-              checked: false,
-              done: false,
-              flipped: false,
-            }
-
-            let newItemList = [
-              ...state.itemList.slice(0, firstIndex),
-              firstEdit,
-              ...state.itemList.slice(firstIndex+1)
-            ]
-            const secondEdit = { ...secondChecked,
-              checked: false,
-              done: false,
-              flipped: false,
-            }
-
-            newItemList = [
-              ...newItemList.slice(0, secondIndex),
-              secondEdit,
-              ...newItemList.slice(secondIndex+1)
-            ]
-
-            return{itemList: newItemList};
-          })
-          this.checkedIndex =[];
-        }
-      }
-      setTimeout(checkCards, 600);
-
+      setTimeout(this.checkCards, 600);
     }
 
   };
@@ -288,7 +346,7 @@ export default class Game extends Component {
   };
 
   flipCard = (index) => {
-    console.log(this.state.itemList[index]);
+    // console.log(this.state.itemList[index]);
 
     this.setState((state) => {
       const items = this.toggleProperty(state.itemList, index, 'flipped');
@@ -296,54 +354,68 @@ export default class Game extends Component {
       return {itemList:items,
       countClicks: countClicks}
     });
-    const flipAudio = new Audio('./flip.wav');
-    flipAudio.play();
+    // const flipAudio = new Audio('./flip.wav');
+    // flipAudio.play();
+    this.playAudio.flip();
   }
 
   changeBoardSize = () => {
+    const oldBs = this.state.boardSize;
+    const newBs = oldBs === 0 ? 1 : 0;
+    this.resetGame();
     this.setState(({boardSize}) => {
-        let newItem = boardSize ++;
-        if (newItem === 3) {
-          let newItem = 0;
-        }
-      return {boardSize: newItem};
+      const newItemList = this.getCardsData(this.boardSizeArray[newBs]);
+      return {boardSize: newBs,
+      itemList: newItemList};
     })
   }
 
   changeBgImage = () => {
+    const oldBg = this.state.background;
+    const newBg = oldBg === 0 ? 1 : 0;
     this.setState(({background}) => {
-      // console.log('sa',background);
-      let newItem = background ++;
-
-      // console.log('aft',background);
-      // console.log('afta',background);
-      if (newItem === 3) {
-        let newItem = 0;
-      }
-    return {background: newItem};
+    return {background: newBg};
   }, ()=>{console.log(this.state.background)})
   }
 
   changeDifficulties = () => {
+    const oldDiff = this.state.difficulty;
+    const newDiff = oldDiff === 0 ? 1 : 0;
+    console.log('before', this.state.difficulty);
+    this.resetGame();
     this.setState(({difficulty}) => {
-      let newItem = difficulty ++;
-      if (newItem === 3) {
-        let newItem = 0;
-      }
-    return {difficulty: newItem};
+    return {difficulty: newDiff};
   })
+  console.log('after', this.state.difficulty);
   }
 
   returnBgImage = () => {
     return this.bgImage[this.state.background]
   }
 
-  // autoClick = () => {
-  //   this.state.itemList.
-  // }
+  audioToggle = () => {
+    this.playAudio.toggleAudio();
+  }
+
+  soundUp = () => {
+    this.playAudio.audioUp();
+  }
+
+  soundDown = () => {
+    this.playAudio.audioDown();
+  }
+
   AutoPlay = () => {
     this.startGame();
     // setInterval(autoClick, 1100);
+  }
+
+  hotKeys = () => {
+    document.addEventListener('keyup', (event) => {
+      if (event.code === 'keyN') {
+        this.startGame()
+      }
+    });
   }
 
 
@@ -384,13 +456,22 @@ export default class Game extends Component {
           buttonLabelBoardSize={'Change Board Size'}
 
           onClickDifficulties={this.changeDifficulties}
-          buttonLabelDifficulties={'change difficulty'}
+          buttonLabelDifficulties={'Change time'}
 
           onClickBgImage={this.changeBgImage}
-          buttonLabelBgImage={'change BgImage'}
+          buttonLabelBgImage={'Change BgImage'}
 
           onClickAutoPlay={this.AutoPlay}
           buttonLabelAutoPlay={'AutoPlay'}
+
+          onClickAudioToggle={this.audioToggle}
+          buttonLabelAudioToggle={'Switch sound'}
+
+          onClickSoundUp={this.soundUp}
+          buttonLabelSoundUp={'Up sound'}
+
+          onClickSoundDown={this.soundDown}
+          buttonLabelSoundDown={'Down sound'}
         />
           {/* //TODO Higher-Order Component, HOC */}
           {/* <Button
@@ -402,7 +483,9 @@ export default class Game extends Component {
           onClick={(i)=> {
             this.onCardClick(i)}}
         />
+        <Footer/>
         </div>
+
       // </React.Fragment>
     );
   }

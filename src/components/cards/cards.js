@@ -99,13 +99,12 @@ const shuffle = (array) => {
   return array.map((obj, index) => ({...obj, key: index}));
 }
 
-// const createCardItem = (number) => {
-const createCardItem = () => {
+const createCardItem = (number = 10) => {
+// const createCardItem = () => {
+  const firstArray = cardsData.slice(0, number);
 
-  // const firstArray = cardsData.slice(number);
-
-    // let randomArray = [...firstArray, ...firstArray];
-    let randomArray = [...cardsData, ...cardsData];
+    let randomArray = [...firstArray, ...firstArray];
+    // let randomArray = [...cardsData, ...cardsData];
 
     return shuffle(randomArray);
 }
