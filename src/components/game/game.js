@@ -23,6 +23,7 @@ export default class Game extends Component {
       background: 0,
       isAudioOn: true,
       audioVolume: 1,
+      autoplay: false,
     };
     playAudio = new PlayAudio(
       this.state.isAudioOn,
@@ -40,6 +41,10 @@ export default class Game extends Component {
 
   componentDidUpdate() {
     this.writeLocalStorage();
+
+    if (this.state.autoplay) {
+      this.autoPlayStepTimeOut = setTimeout(this.autoPlayStep, 5000);
+    }
   }
 
   componentDidMount() {
@@ -405,15 +410,55 @@ export default class Game extends Component {
     this.playAudio.audioDown();
   }
 
+  toggleAutoPlay = () => {
+    const oldAP = this.state.difficulty;
+    const newAP = oldAP ? false : true;
+    console.log('before', this.state.difficulty);
+    this.resetGame();
+    this.setState(({autoplay}) => {
+    return {autoplay: newAP};
+    });
+  }
+
+//   autoPlayStep = async () => {
+//     const {itemList} = this.state;
+// // debugger
+//     let firstCard = itemList.find((item) => !item.flipped && !item.done);
+//     this.firstFlip = await setTimeout(() => {this.onCardClick(firstCard.key);}, 1);
+//     // this.firstFlip = await this.onCardClick(firstCard);
+//     let secondCard = itemList.find((item) => item.key !== firstCard.key && item.id === firstCard.id);
+//     // this.secondFlip = await this.onCardClick(secondCard);
+//     this.secondFlip = await setTimeout(() => {this.onCardClick(secondCard.key);},3000);
+//   }
+
   AutoPlay = () => {
-    this.startGame();
+    // this.startGame();
+
+    this.toggleAutoPlay();
     // setInterval(autoClick, 1100);
   }
 
   hotKeys = () => {
     document.addEventListener('keyup', (event) => {
-      if (event.code === 'keyN') {
+      if (event.code === 'KeyN') {
+        // debugger;
         this.startGame()
+      }
+      if (event.code === 'KeyB') {
+        // debugger;
+        this.changeBoardSize()
+      }
+      if (event.code === 'KeyI') {
+        // debugger;
+        this.changeBgImage()
+      }
+      if (event.code === 'KeyT') {
+        // debugger;
+        this.changeDifficulties()
+      }
+      if (event.code === 'KeyS') {
+        // debugger;
+        this.audioToggle()
       }
     });
   }
