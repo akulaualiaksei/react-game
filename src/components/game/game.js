@@ -5,6 +5,7 @@ import Header from '../header/header';
 import Cards from '../cards/cards';
 import Footer from '../footer/footer';
 import PlayAudio from '../audio/audio';
+import Statistics from '../statistics/statistics';
 
 export default class Game extends Component {
 
@@ -24,6 +25,7 @@ export default class Game extends Component {
       isAudioOn: true,
       audioVolume: 1,
       autoplay: false,
+      score: [],
     };
     playAudio = new PlayAudio(
       this.state.isAudioOn,
@@ -50,10 +52,14 @@ export default class Game extends Component {
   componentDidMount() {
     const localStorageState = localStorage.getItem('state');
     const localStorageIndexes = localStorage.getItem('indexes');
+    const localStorageScore = localStorage.getItem('score');
     // const bgAudio = new Audio('./bg.mp3');
     // bgAudio.play();
     if (localStorageState !== null){
       this.getFromLocalStorage(localStorageState, localStorageIndexes);
+    }
+    if (localStorageScore !== null) {
+      this.getScoreFromLS(localStorageScore);
     }
     // this.playAudio.startBg();
     this.hotKeys();
@@ -112,11 +118,15 @@ export default class Game extends Component {
   removeLocalStorage = () => {
     localStorage.removeItem('indexes');
     localStorage.removeItem('state');
-    console.log('remove ls')
+    // console.log('remove ls')
   }
 
-
-
+  // getScoreFromLS = (score) => {
+  //   const scoreObj = JSON.parse(score);
+  //   this.setState({score}=> {
+  //     retu
+  //   })
+  // }
 
   getFromLocalStorage = (state, indexes) => {
     const stateObj = JSON.parse(state);
@@ -140,9 +150,9 @@ export default class Game extends Component {
       // const cardData = this.getCardsData(this.boardSize);
       const cardData = this.getCardsData(this.boardSizeArray[this.state.boardSize]);
       const time = this.difficulties[this.state.difficulty];
-      console.log('time',time);
-      console.log('time d',this.state.difficulty);
-      console.log('time item',this.difficulties[this.state.difficulty]);
+      // console.log('time',time);
+      // console.log('time d',this.state.difficulty);
+      // console.log('time item',this.difficulties[this.state.difficulty]);
       return {gameStarted: true,
         itemList: cardData,
         countClicks: 0,
@@ -166,7 +176,7 @@ export default class Game extends Component {
       };
     })
 
-    console.log('remove from reset')
+    // console.log('remove from reset')
     this.removeLocalStorage();
     this.doneIndex = [];
     this.checkedIndex = [];
@@ -225,13 +235,13 @@ export default class Game extends Component {
       // winGame.play();
       this.playAudio.win();
       // this.componentWillUnmount();
-      console.log('from win game', this.IntervalId)
+      // console.log('from win game', this.IntervalId)
       clearInterval(this.IntervalId);
       this.setGameStarted(false);
       // setTimeout(() => {
       //   window.location.reload(false);
       // }, 5000);
-      console.log('remove from win')
+      // console.log('remove from win')
       this.removeLocalStorage();
       this.doneIndex = [];
       this.checkedIndex = [];
@@ -386,12 +396,12 @@ export default class Game extends Component {
   changeDifficulties = () => {
     const oldDiff = this.state.difficulty;
     const newDiff = oldDiff === 0 ? 1 : 0;
-    console.log('before', this.state.difficulty);
+    // console.log('before', this.state.difficulty);
     this.resetGame();
     this.setState(({difficulty}) => {
     return {difficulty: newDiff};
   })
-  console.log('after', this.state.difficulty);
+  // console.log('after', this.state.difficulty);
   }
 
   returnBgImage = () => {
@@ -463,6 +473,10 @@ export default class Game extends Component {
     });
   }
 
+  ShowStatistics = () => {
+
+  }
+
 
 
   render() {
@@ -472,7 +486,8 @@ export default class Game extends Component {
       countDone,
       timeRemaining,
       gameStarted,
-      background
+      background,
+      score,
     } = this.state;
     // console.log(background);
 
@@ -506,8 +521,10 @@ export default class Game extends Component {
           onClickBgImage={this.changeBgImage}
           buttonLabelBgImage={'Change BgImage'}
 
-          onClickAutoPlay={this.AutoPlay}
-          buttonLabelAutoPlay={'AutoPlay'}
+          // onClickAutoPlay={this.AutoPlay}
+          // buttonLabelAutoPlay={'AutoPlay'}
+          // onClickStatistics={this.ShowStatistics}
+          // buttonLabelStatistics={'Statistics'}
 
           onClickAudioToggle={this.audioToggle}
           buttonLabelAudioToggle={'Switch sound'}
@@ -518,6 +535,8 @@ export default class Game extends Component {
           onClickSoundDown={this.soundDown}
           buttonLabelSoundDown={'Down sound'}
         />
+        {/* <Statistics
+          score={score}/> */}
           {/* //TODO Higher-Order Component, HOC */}
           {/* <Button
             handleClick={this.eventas}

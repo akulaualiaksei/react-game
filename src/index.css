@@ -50,4 +50,16 @@ header {
 .footer-author:hover {
   color: blanchedalmond;
 }
+
+button {
+  -webkit-transition: all 0.4;
+  transition: all 0.4;
+  background-color: black;
+  color: #ffffff;
+}
+
+button:hover {
+  color: blanchedalmond;
+  cursor: pointer;
+}
 /*# sourceMappingURL=index.css.map */

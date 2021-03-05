@@ -23,6 +23,8 @@ const Header = (
     buttonLabelSoundUp,
     onClickSoundDown,
     buttonLabelSoundDown,
+    onClickStatistics,
+    buttonLabelStatistics,
 
   }) => {
 
@@ -54,10 +56,14 @@ const Header = (
       handleClick={onClickBgImage}
       label= {buttonLabelBgImage}
     />
-    <Button
+    {/* <Button
       handleClick={onClickAutoPlay}
       label= {buttonLabelAutoPlay}
-    />
+    /> */}
+    {/* <Button
+      handleClick={onClickStatistics}
+      label= {buttonLabelStatistics}
+    /> */}
     <Button
       handleClick={onClickAudioToggle}
       label= {buttonLabelAudioToggle}
